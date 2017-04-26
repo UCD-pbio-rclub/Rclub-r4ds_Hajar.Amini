@@ -1,10 +1,9 @@
 ---
 title: "R-club-Apr-26"
 output:
-  pdf_document: default
   html_document:
     keep_md: yes
-    toc: yes
+  pdf_document: default
 ---
 #3.1.1 Prerequisites
 ```{r}
