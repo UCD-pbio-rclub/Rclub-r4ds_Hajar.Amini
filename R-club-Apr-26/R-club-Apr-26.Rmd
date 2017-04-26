@@ -1,0 +1,143 @@
+---
+title: "R-club-Apr-26"
+output:
+  html_document:
+    keep_md: yes
+  pdf_document: default
+---
+#3.1.1 Prerequisites
+```{r}
+#install.packages(tidyverse)
+library(tidyverse)
+library(ggplot2)
+```
+#3.2.2 Creating a ggplot
+```{r}
+mpg
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, y = hwy))
+```
+#3.2.3 A graphing template
+##3.2.4 Exercises
+###1.Run ggplot(data = mpg) what do you see?
+```{r}
+ggplot(data = mpg)# I see nothing
+```
+###2.How many rows are in mtcars? How many columns?
+```{r}
+dim(mtcars) # 32 11 number of row equal to "32" & number of col equal to "11"
+ncol(mtcars) #number of col equal to "11"
+```
+###3.What does the drv variable describe? Read the help for ?mpg to find out.
+```{r}
+?mpg
+#$f describe front-wheel drive, r = rear wheel drive, 4 = 4wd
+```
+###4.Make a scatterplot of hwy vs cyl.
+```{r}
+ggplot(data = mpg) + geom_point(mapping = aes(x = hwy, y = cyl))
+```
+###5.What happens if you make a scatterplot of class vs drv. Why is the plot not useful?
+```{r}
+ggplot(data = mpg) + geom_point(mapping = aes(x = class, y = drv)) 
+#it has no  meaning to me
+```
+#3.3 Aesthetic mappings
+##3.3.1 Exercises
+###1.What’s gone wrong with this code? Why are the points not blue?
+```{r}
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, y = hwy, color = "blue"))
+#in this function the colour does not change, if I want to change the color it must not be in aes()
+```
+###2.Which variables in mpg are categorical? Which variables are continuous? (Hint: type ?mpg to read the documentation for the dataset). How can you see this information when you run mpg?
+```{r}
+?mpg
+mpg
+#manufacturer,model,trans,drv, fl, and class are categorials
+##displ, year, cyl, cty, and hwy are continuous
+# also we can check this with see the distribution 
+hist(mpg$displ) # as categorials
+hist(mpg$hwy)# as continuous normal distribution
+```
+###3.Map a continuous variable to color, size, and shape. How do these aesthetics behave differently for categorical vs. continuous variables?
+```{r}
+#color
+mpg
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, y = hwy, color = cyl))
+#since colors are continuous, so it is hard to explain the difference between continuous variables
+###size
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, y = hwy, size = cyl))
+###shape
+#mpg #it is wrong the continuous variable can not be mapped to shape
+#ggplot(data = mpg) + 
+#geom_point(mapping = aes(x = displ, y = hwy, shape = class))
+```
+###4.What happens if you map the same variable to multiple aesthetics?
+```{r}
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = cyl, y = cyl, color = cyl))
+# I get a nice  correlation line
+```
+###5.What does the stroke aesthetic do? What shapes does it work with? (Hint: use ?geom_point)
+```{r}
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, y = hwy,color = model), stroke = 1)
+?geom_point
+#change the size of the points in the plot
+```
+###6.What happens if you map an aesthetic to something other than a variable name, like aes(colour = displ < 5)?
+```{r}
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = cyl, y = hwy,color = cyl < 5), stroke = 1)
+```
+#3.4 Common problems
+#3.5 Facets
+##3.5.1 Exercises
+###1.What happens if you facet on a continuous variable?
+```{r}
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, y = hwy)) + 
+  facet_wrap(~ cyl, nrow = 2)
+```
+###2.What do the empty cells in plot with facet_grid(drv ~ cyl) mean? How do they relate to this plot?
+```{r}
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = drv, y = cyl))
+#there are no points for x and y combination such as there are no points fordrv= 4 and cyl=5
+```
+###3.What plots does the following code make? What does . do?
+```{r}
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, y = hwy)) +
+  facet_grid(drv ~ .)
+#facet only in y axis
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, y = hwy)) +
+  facet_grid(. ~ cyl)
+#facet only in x axis
+```
+###4.Take the first faceted plot in this section
+###What are the advantages to using faceting instead of the colour aesthetic? What are the disadvantages?
+```{r}
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, y = hwy, color=class)) + 
+  facet_wrap(~ class, nrow = 2)
+#Advantages: if I have a large data for analyzing it is easy to use colour as we can see in this function. also this function give us more information #disadvantages: becuase we don't have a largest dataset there is no strong negative relationship between displ and hwy
+### How might the balance change if you had a larger dataset?
+#Each figure may have a strong negative relationships between displ and hwy.
+
+###5.Read ?facet_wrap. What does nrow do? What does ncol do? 
+#nrow represented num of rows and ncol represented the number of columns in facet_warp.
+###5.What other options control the layout of the individual panels? 
+#threre are several options such as  labeller, as.table
+#Try as.table. If the default TRUE, the facets look like a table with highest values at the bottom-right. If FALSE, the facets look like a plot with the highest value at the top-right.
+#5.Why doesn’t facet_grid() have nrow and ncol variables?
+#becuase it was faceted according to the levels of variables.
+
+###6.When using facet_grid() you should usually put the variable with more unique levels in the columns. Why?
+?facet_grid
+#if put variables with less unique levels, the plots would have many grids so it would not be appropriate for understanding.
+```
