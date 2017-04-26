@@ -74,14 +74,14 @@ ggplot(data = mpg) +
 ![](R-club-Apr-26_files/figure-html/unnamed-chunk-2-1.png)<!-- -->
 #3.2.3 A graphing template
 ##3.2.4 Exercises
-###1
+###1.Run ggplot(data = mpg) what do you see?
 
 ```r
 ggplot(data = mpg)# I see nothing
 ```
 
 ![](R-club-Apr-26_files/figure-html/unnamed-chunk-3-1.png)<!-- -->
-###2
+###2.How many rows are in mtcars? How many columns?
 
 ```r
 dim(mtcars) # 32 11 number of row equal to "32" & number of col equal to "11"
@@ -98,29 +98,33 @@ ncol(mtcars) #number of col equal to "11"
 ```
 ## [1] 11
 ```
-###3
+###3.What does the drv variable describe? Read the help for ?mpg to find out.
 
 ```r
 ?mpg
 #$f describe front-wheel drive, r = rear wheel drive, 4 = 4wd
 ```
-###4
+###4.Make a scatterplot of hwy vs cyl.
 
 ```r
 ggplot(data = mpg) + geom_point(mapping = aes(x = hwy, y = cyl))
 ```
 
 ![](R-club-Apr-26_files/figure-html/unnamed-chunk-6-1.png)<!-- -->
-###5
+###5.What happens if you make a scatterplot of class vs drv. Why is the plot not useful?
 
 ```r
-ggplot(data = mpg) + geom_point(mapping = aes(x = class, y = drv))#it has no  meaning to me
+ggplot(data = mpg) + geom_point(mapping = aes(x = class, y = drv)) 
 ```
 
 ![](R-club-Apr-26_files/figure-html/unnamed-chunk-7-1.png)<!-- -->
+
+```r
+#it has no  meaning to me
+```
 #3.3 Aesthetic mappings
 ##3.3.1 Exercises
-###1
+###1.What’s gone wrong with this code? Why are the points not blue?
 
 ```r
 ggplot(data = mpg) + 
@@ -132,7 +136,7 @@ ggplot(data = mpg) +
 ```r
 #in this function the colour does not change, if I want to change the color it must not be in aes()
 ```
-###2
+###2.Which variables in mpg are categorical? Which variables are continuous? (Hint: type ?mpg to read the documentation for the dataset). How can you see this information when you run mpg?
 
 ```r
 ?mpg
@@ -170,7 +174,7 @@ hist(mpg$hwy)# as continuous normal distribution
 ```
 
 ![](R-club-Apr-26_files/figure-html/unnamed-chunk-9-2.png)<!-- -->
-###3
+###3.Map a continuous variable to color, size, and shape. How do these aesthetics behave differently for categorical vs. continuous variables?
 
 ```r
 #color
@@ -216,7 +220,7 @@ ggplot(data = mpg) +
 #ggplot(data = mpg) + 
 #geom_point(mapping = aes(x = displ, y = hwy, shape = class))
 ```
-###4
+###4.What happens if you map the same variable to multiple aesthetics?
 
 ```r
 ggplot(data = mpg) + 
@@ -228,7 +232,7 @@ ggplot(data = mpg) +
 ```r
 # I get a nice  correlation line
 ```
-###5
+###5.What does the stroke aesthetic do? What shapes does it work with? (Hint: use ?geom_point)
 
 ```r
 ggplot(data = mpg) + 
@@ -241,7 +245,7 @@ ggplot(data = mpg) +
 ?geom_point
 #change the size of the points in the plot
 ```
-###6
+###6.What happens if you map an aesthetic to something other than a variable name, like aes(colour = displ < 5)?
 
 ```r
 ggplot(data = mpg) + 
@@ -312,12 +316,12 @@ ggplot(data = mpg) +
 #Each figure may have a strong negative relationships between displ and hwy.
 
 ###5.Read ?facet_wrap. What does nrow do? What does ncol do? 
-#nrow represented num of rpws and ncol represented the number of columns in facet_warp.
+#nrow represented num of rows and ncol represented the number of columns in facet_warp.
 ###5.What other options control the layout of the individual panels? 
 #threre are several options such as  labeller, as.table
 #Try as.table. If the default TRUE, the facets look like a table with highest values at the bottom-right. If FALSE, the facets look like a plot with the highest value at the top-right.
 #5.Why doesn’t facet_grid() have nrow and ncol variables?
-##it was faceted according to the levels of variables. The number of rows or columns were determined by the levels of the variable.
+#becuase it was faceted according to the levels of variables.
 
 ###6.When using facet_grid() you should usually put the variable with more unique levels in the columns. Why?
 ?facet_grid
