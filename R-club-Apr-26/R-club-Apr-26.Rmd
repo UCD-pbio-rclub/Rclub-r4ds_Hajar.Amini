@@ -11,6 +11,7 @@ output:
 library(tidyverse)
 library(ggplot2)
 ```
+
 #3.2.2 Creating a ggplot
 ```{r}
 mpg
@@ -89,10 +90,17 @@ ggplot(data = mpg) +
 #change the size of the points in the plot
 ```
 ###6.What happens if you map an aesthetic to something other than a variable name, like aes(colour = displ < 5)?
+we want something interestion for changing colour
 ```{r}
 ggplot(data = mpg) + 
   geom_point(mapping = aes(x = cyl, y = hwy,color = cyl < 5), stroke = 1)
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = cyl, y = hwy,color = class == "compact"))+
+  scale_color_manual(labels = c("compact","no compact"), values = c("red","blue"))+
+labs(colour="type")
+
 ```
+
 #3.4 Common problems
 #3.5 Facets
 ##3.5.1 Exercises
@@ -102,12 +110,14 @@ ggplot(data = mpg) +
   geom_point(mapping = aes(x = displ, y = hwy)) + 
   facet_wrap(~ cyl, nrow = 2)
 ```
+
 ###2.What do the empty cells in plot with facet_grid(drv ~ cyl) mean? How do they relate to this plot?
 ```{r}
 ggplot(data = mpg) + 
   geom_point(mapping = aes(x = drv, y = cyl))
 #there are no points for x and y combination such as there are no points fordrv= 4 and cyl=5
 ```
+
 ###3.What plots does the following code make? What does . do?
 ```{r}
 ggplot(data = mpg) + 
@@ -119,6 +129,7 @@ ggplot(data = mpg) +
   facet_grid(. ~ cyl)
 #facet only in x axis
 ```
+
 ###4.Take the first faceted plot in this section
 ###What are the advantages to using faceting instead of the colour aesthetic? What are the disadvantages?
 ```{r}
