@@ -1,28 +1,219 @@
 ---
 title: "R-club-May-3"
-output: html_document
+output: 
+  html_document: 
+    keep_md: yes
 ---
+#3.6.1 Exercises
+1.What geom would you use to draw a line chart? A boxplot? A histogram? An area chart?
+line chart...geom_line()
+boxplot...geom_boxplot()
+histogram...geom_histogram()
+area chart...geom_area()
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+2.Run this code in your head and predict what the output will look like. Then, run the code in R and check your predictions.
+```{r}
+library(ggplot2)
+ggplot(data = mpg, mapping = aes(x = displ, y = hwy, color = drv)) + 
+  geom_point() + 
+  geom_smooth(se = FALSE)
+
 ```
 
-## R Markdown
+3.What does show.legend = FALSE do? What happens if you remove it?
+Why do you think I used it earlier in the chapter?
+?show.legend()
+It removes the legend. it removes the key from plotted graph.
+I think you use this because you don't need legend before.
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+4.What does the se argument to geom_smooth() do?
+It is relating to draw or not draw a confidence interval around the smoothing line.
 
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+5.Will these two graphs look different? Why/why not?
 
-```{r cars}
-summary(cars)
+```{r}
+ggplot(data = mpg, mapping = aes(x = displ, y = hwy)) + 
+  geom_point() + 
+  geom_smooth()
+
+ggplot() + 
+  geom_point(data = mpg, mapping = aes(x = displ, y = hwy)) + 
+  geom_smooth(data = mpg, mapping = aes(x = displ, y = hwy))
+
 ```
 
-## Including Plots
+No,these plots are same. they used the same data and same setting.
 
-You can also embed plots, for example:
+6.Recreate the R code necessary to generate the following graphs.
+First figure
 
-```{r pressure, echo=FALSE}
-plot(pressure)
+```{r}
+ggplot(data = mpg, mapping = aes(x = displ, y = hwy)) + 
+  geom_point() + 
+  geom_smooth(se = FALSE)
+
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+Second Figure
+
+```{r}
+ggplot(data = mpg, mapping = aes(x = displ, y = hwy)) + 
+  geom_smooth(aes(group = drv), se = FALSE) +
+  geom_point()
+
+```
+
+Third Figure
+
+```{r}
+ggplot(data = mpg, mapping = aes(x = displ, y = hwy, color = drv)) + 
+  geom_point() + 
+  geom_smooth(se = FALSE)
+
+```
+
+Fourth Figure
+
+```{r}
+ggplot(data = mpg, mapping = aes(x = displ, y = hwy)) + 
+  geom_point(aes(color = drv)) + 
+  geom_smooth(se = FALSE)
+
+```
+
+Fifth Figure
+
+```{r}
+ggplot(data = mpg, mapping = aes(x = displ, y = hwy)) + 
+  geom_point(aes(color = drv)) +
+  geom_smooth(aes(linetype = drv), se = FALSE)
+
+```
+
+sixth Figure
+
+```{r}
+ggplot(data = mpg, mapping = aes(x = displ, y = hwy)) + 
+  geom_point(size = 4, colour = "white") + 
+  geom_point(aes(colour = drv))
+
+```
+
+#3.7 Statistical transformations
+
+```{r}
+ggplot(data = diamonds) + 
+  geom_bar(mapping = aes(x = cut))
+
+```
+
+1.What is the default geom associated with stat_summary()? How could you rewrite the previous plot to use that geom function instead of the stat function?
+The default geom is geom_pointrange(). for Rewritting, we could write:
+
+```{r}
+ggplot(data = diamonds) +
+  geom_pointrange(mapping = aes(x = cut, y = depth),
+                  stat = "summary",
+                  fun.ymin = min,
+                  fun.ymax = max,
+                  fun.y = median)
+
+```
+
+2.What does geom_col() do? How is it different to geom_bar()?
+For drawing bar graph geom_bar() uses the stat_count() statistical transformation while geom_col() assumes the values which are transformed to the appropriate values. (for example to show means) 
+I think geom_bar(stat = "identity") and geom_col() have same result.
+counts are the number of points in bin
+
+3.Most geoms and stats come in pairs that are almost always used in concert. Read through the documentation and make a list of all the pairs. What do they have in common?
+geoms stand for "geometric objects." These are the core elements that we see on the plot, object like points, lines, areas, curves.
+stats stand for "statistical transformations." These objects summarize the data in different ways such as counting observations, creating a loess line that best fits the data, or adding a confidence interval to the loess line.
+geom is core of the plot but stat are not required to produce a plot but both of them enhance the final plot.
+
+4.What variables does stat_smooth() compute? What parameters control its behaviour?
+stat_smooth() computes four variables:
+?stat_smooth
+y - predicted value
+ymin - lowest pointwise confidence interval around the mean
+ymax - upper pointwise confidence interval around the mean
+se - standard error
+several parameters control its behaviour but the most importantly are
+method controls the smoothing methos to be used
+se for drawing confidence interval 
+level for determining the level of confidence interval to use.
+
+5.In our proportion bar chart, we need to set group = 1. Why? In other words what is the problem with these two graphs?
+
+```{r}
+ggplot(data = diamonds) + 
+  geom_bar(mapping = aes(x = cut, y = ..prop..))
+
+```
+
+```{r}
+ggplot(data = diamonds) + 
+  geom_bar(mapping = aes(x = cut, fill = color, y = ..prop..))
+
+```
+
+If we don't set group = 1, the proportions for each cut are calculated using the complete dataset, rather than each subset of cut. 
+The correct graphs are as follows:
+
+```{r}
+ggplot(data = diamonds) + 
+  geom_bar(mapping = aes(x = cut, y = ..prop.., group = 1))
+
+```
+
+```{r}
+ggplot(data = diamonds) + 
+  geom_bar(mapping = aes(x = cut, fill = color, y = ..prop.., group = 1))
+
+```
+
+#3.8 Position adjustments
+
+```{r}
+ggplot(data = diamonds) + 
+  geom_bar(mapping = aes(x = cut, colour = cut))
+
+ggplot(data = diamonds) + 
+  geom_bar(mapping = aes(x = cut, fill = cut))
+
+```
+
+```{r}
+ggplot(data = diamonds) + 
+  geom_bar(mapping = aes(x = cut, fill = clarity))
+```
+
+```{r}
+ggplot(data = diamonds, mapping = aes(x = cut, fill = clarity)) + 
+  geom_bar(alpha = 1/5, position = "identity")
+
+```
+
+```{r}
+ggplot(data = diamonds, mapping = aes(x = cut, colour = clarity)) + 
+  geom_bar(fill = NA, position = "identity")
+
+```
+```{r}
+ggplot(data = diamonds) + 
+  geom_bar(mapping = aes(x = cut, fill = clarity), position = "fill")
+
+```
+```{r}
+ggplot(data = diamonds) + 
+  geom_bar(mapping = aes(x = cut, fill = clarity), position = "dodge")
+
+```
+```{r}
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, y = hwy), position = "jitter")
+
+```
+
+1.What is the problem with this plot? How could you improve it?
+
+
