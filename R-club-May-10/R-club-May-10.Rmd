@@ -7,7 +7,7 @@ output:
     keep_md: yes
 ---
 ```{r}
-install.packages("nycflights13")
+#install.packages("nycflights13")
 library(nycflights13)
 library(tidyverse)
 nycflights13::flights
@@ -183,6 +183,99 @@ It is included only a single time in the new data frame.
 
 3.What does the one_of() function do? Why might it be helpful in conjunction with this vector?
 ```{r}
+#It selects any variable which matches one of the strings in the vector.
+variables <- c("year", "month", "day", "dep_delay", "arr_delay")
+select(flights, one_of(variables))
 
 ```
+
+4.Does the result of running the following code surprise you? How do the select helpers deal with case by default? How can you change that default?
+```{r}
+select(flights, contains("TIME"))
+
+select(flights, contains("TIME", ignore.case = FALSE))
+
+```
+#5.5 Add new variables with mutate()
+```{r}
+flights_sml <- select(flights, 
+  year:day, 
+  ends_with("delay"), 
+  distance, 
+  air_time
+)
+mutate(flights_sml,
+  gain = arr_delay - dep_delay,
+  speed = distance / air_time * 60
+)
+mutate(flights_sml,
+  gain = arr_delay - dep_delay,
+  hours = air_time / 60,
+  gain_per_hour = gain / hours
+)
+
+#If you only want to keep the new variables, use transmute():
+
+transmute(flights,
+  gain = arr_delay - dep_delay,
+  hours = air_time / 60,
+  gain_per_hour = gain / hours
+)
+```
+5.5.1 Useful creation functions
+```{r}
+transmute(flights,
+  dep_time,
+  hour = dep_time %/% 100,
+  minute = dep_time %% 100
+)
+
+```
+```{r}
+x <- 1:10
+lag(x)
+lead(x)
+row_number(y)
+dense_rank(y)
+percent_rank(y)
+cume_dist(y)
+
+```
+
+5.5.2 Exercises
+1.Currently dep_time and sched_dep_time are convenient to look at, but hard to compute with because they’re not really continuous numbers. Convert them to a more convenient representation of number of minutes since midnight.
+
+```{r}
+transmute(flights,
+       sched_dep_time = (sched_dep_time %/% 100) * 60 + sched_dep_time %% 100,
+       dep_time = (dep_time %/% 100) * 60 + dep_time %% 100)
+```
+2.Compare air_time with arr_time - dep_time. What do you expect to see? What do you see? What do you need to do to fix it?
+```{r}
+flights2 <- select(flights, air_time, arr_time, dep_time)
+mutate(flights2, air_time_new = arr_time - dep_time)
+```
+They are not the same because dep_time and arr_time are not measured in minutes, but are numerical representations of the time. We need to convert them to continuous numbers like above to make the correct calculation for air_time.
+
+3.Compare dep_time, sched_dep_time, and dep_delay. How would you expect those three numbers to be related?
+
+dep_time should equal sched_dep_time + dep_delay (after accounting for the fact that they are not stored continuously).
+
+4.Find the 10 most delayed flights using a ranking function. How do you want to handle ties? Carefully read the documentation for min_rank().
+```{r}
+delayed <- mutate(flights, most_delayed = min_rank(desc(arr_delay)))
+arrange(delayed, most_delayed)
+```
+I used min_rank() which assigns ties to the lowest rank. 
+
+5.What does 1:3 + 1:10 return? Why?
+```{r}
+1:3 + 1:10
+```
+Because the two vectors are not the same length, R R adds the first elements together, then the second elements, then the third, etc until shorter vector is the same length.
+
+6.What trigonometric functions does R provide?
+Cosine, sine, tangent, arc-tangent, arc-sine, arc-tangent, and the two-argument arc-tangent.
+
+
 
