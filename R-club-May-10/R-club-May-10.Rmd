@@ -70,32 +70,37 @@ filter(flights, arr_delay >= 120)
 Flew to Houston (IAH or HOU)
 ```{r}
 filter(flights, dest == "IAH" | dest == "HOU")
+filter(flights, dest %in% c ("IAH","HOU"))
 ```
 Were operated by United, American, or Delta
 ```{r}
 filter(flights, carrier == "UA" | carrier == "AA" | carrier == "DL")
+
 ```
 Departed in summer (July, August, and September)
 ```{r}
-filter(flights, month >= 7, month <= 9)
+filter(flights, month >= 7 & month <= 9)
 ```
 Arrived more than two hours late, but didn’t leave late
 ```{r}
-filter(flights, arr_delay >= 120, dep_delay <= 0)
+filter(flights, arr_delay >= 120 & dep_delay <= 0)
 ```
 Were delayed by at least an hour, but made up over 30 minutes in flight
 ```{r}
-filter(flights, dep_delay >= 60, dep_delay - arr_delay >= 30)
+filter(flights, dep_delay >= 60 & dep_delay - arr_delay >= 30)
 
 ```
 Departed between midnight and 6am (inclusive)
 ```{r}
 filter(flights, dep_time >=0, dep_time <= 600)
+filter(flights, dep_time <=600, dep_time == 2400)
 
 ```
 2.Another useful dplyr filtering helper is between(). What does it do? Can you use it to simplify the code needed to answer the previous challenges?
 It is a shortcut for finding observations between two values.
+
 ```{r}
+?between
 filter(flights, month >= 7, month <= 9)
 filter(flights, between(month, 7, 9))
 
@@ -186,10 +191,11 @@ It is included only a single time in the new data frame.
 #It selects any variable which matches one of the strings in the vector.
 variables <- c("year", "month", "day", "dep_delay", "arr_delay")
 select(flights, one_of(variables))
-
+head(select(flights, one_of(variables)))
 ```
 
 4.Does the result of running the following code surprise you? How do the select helpers deal with case by default? How can you change that default?
+
 ```{r}
 select(flights, contains("TIME"))
 
@@ -246,11 +252,12 @@ cume_dist(y)
 1.Currently dep_time and sched_dep_time are convenient to look at, but hard to compute with because they’re not really continuous numbers. Convert them to a more convenient representation of number of minutes since midnight.
 
 ```{r}
-transmute(flights,
+mutate(flights,
        sched_dep_time = (sched_dep_time %/% 100) * 60 + sched_dep_time %% 100,
        dep_time = (dep_time %/% 100) * 60 + dep_time %% 100)
 ```
 2.Compare air_time with arr_time - dep_time. What do you expect to see? What do you see? What do you need to do to fix it?
+
 ```{r}
 flights2 <- select(flights, air_time, arr_time, dep_time)
 mutate(flights2, air_time_new = arr_time - dep_time)
@@ -262,6 +269,7 @@ They are not the same because dep_time and arr_time are not measured in minutes,
 dep_time should equal sched_dep_time + dep_delay (after accounting for the fact that they are not stored continuously).
 
 4.Find the 10 most delayed flights using a ranking function. How do you want to handle ties? Carefully read the documentation for min_rank().
+
 ```{r}
 delayed <- mutate(flights, most_delayed = min_rank(desc(arr_delay)))
 arrange(delayed, most_delayed)

@@ -363,6 +363,30 @@ filter(flights, dest == "IAH" | dest == "HOU")
 ## #   origin <chr>, dest <chr>, air_time <dbl>, distance <dbl>, hour <dbl>,
 ## #   minute <dbl>, time_hour <dttm>
 ```
+
+```r
+filter(flights, dest %in% c ("IAH","HOU"))
+```
+
+```
+## # A tibble: 9,313 × 19
+##     year month   day dep_time sched_dep_time dep_delay arr_time
+##    <int> <int> <int>    <int>          <int>     <dbl>    <int>
+## 1   2013     1     1      517            515         2      830
+## 2   2013     1     1      533            529         4      850
+## 3   2013     1     1      623            627        -4      933
+## 4   2013     1     1      728            732        -4     1041
+## 5   2013     1     1      739            739         0     1104
+## 6   2013     1     1      908            908         0     1228
+## 7   2013     1     1     1028           1026         2     1350
+## 8   2013     1     1     1044           1045        -1     1352
+## 9   2013     1     1     1114            900       134     1447
+## 10  2013     1     1     1205           1200         5     1503
+## # ... with 9,303 more rows, and 12 more variables: sched_arr_time <int>,
+## #   arr_delay <dbl>, carrier <chr>, flight <int>, tailnum <chr>,
+## #   origin <chr>, dest <chr>, air_time <dbl>, distance <dbl>, hour <dbl>,
+## #   minute <dbl>, time_hour <dttm>
+```
 Were operated by United, American, or Delta
 
 ```r
@@ -391,7 +415,7 @@ filter(flights, carrier == "UA" | carrier == "AA" | carrier == "DL")
 Departed in summer (July, August, and September)
 
 ```r
-filter(flights, month >= 7, month <= 9)
+filter(flights, month >= 7 & month <= 9)
 ```
 
 ```
@@ -416,7 +440,7 @@ filter(flights, month >= 7, month <= 9)
 Arrived more than two hours late, but didn’t leave late
 
 ```r
-filter(flights, arr_delay >= 120, dep_delay <= 0)
+filter(flights, arr_delay >= 120 & dep_delay <= 0)
 ```
 
 ```
@@ -441,7 +465,7 @@ filter(flights, arr_delay >= 120, dep_delay <= 0)
 Were delayed by at least an hour, but made up over 30 minutes in flight
 
 ```r
-filter(flights, dep_delay >= 60, dep_delay - arr_delay >= 30)
+filter(flights, dep_delay >= 60 & dep_delay - arr_delay >= 30)
 ```
 
 ```
@@ -488,10 +512,25 @@ filter(flights, dep_time >=0, dep_time <= 600)
 ## #   origin <chr>, dest <chr>, air_time <dbl>, distance <dbl>, hour <dbl>,
 ## #   minute <dbl>, time_hour <dttm>
 ```
+
+```r
+filter(flights, dep_time <=600, dep_time == 2400)
+```
+
+```
+## # A tibble: 0 × 19
+## # ... with 19 variables: year <int>, month <int>, day <int>,
+## #   dep_time <int>, sched_dep_time <int>, dep_delay <dbl>, arr_time <int>,
+## #   sched_arr_time <int>, arr_delay <dbl>, carrier <chr>, flight <int>,
+## #   tailnum <chr>, origin <chr>, dest <chr>, air_time <dbl>,
+## #   distance <dbl>, hour <dbl>, minute <dbl>, time_hour <dttm>
+```
 2.Another useful dplyr filtering helper is between(). What does it do? Can you use it to simplify the code needed to answer the previous challenges?
 It is a shortcut for finding observations between two values.
 
+
 ```r
+?between
 filter(flights, month >= 7, month <= 9)
 ```
 
@@ -1019,7 +1058,24 @@ select(flights, one_of(variables))
 ## # ... with 336,766 more rows
 ```
 
+```r
+head(select(flights, one_of(variables)))
+```
+
+```
+## # A tibble: 6 × 5
+##    year month   day dep_delay arr_delay
+##   <int> <int> <int>     <dbl>     <dbl>
+## 1  2013     1     1         2        11
+## 2  2013     1     1         4        20
+## 3  2013     1     1         2        33
+## 4  2013     1     1        -1       -18
+## 5  2013     1     1        -6       -25
+## 6  2013     1     1        -4        12
+```
+
 4.Does the result of running the following code surprise you? How do the select helpers deal with case by default? How can you change that default?
+
 
 ```r
 select(flights, contains("TIME"))
@@ -1213,28 +1269,32 @@ cume_dist(y)
 
 
 ```r
-transmute(flights,
+mutate(flights,
        sched_dep_time = (sched_dep_time %/% 100) * 60 + sched_dep_time %% 100,
        dep_time = (dep_time %/% 100) * 60 + dep_time %% 100)
 ```
 
 ```
-## # A tibble: 336,776 × 2
-##    sched_dep_time dep_time
-##             <dbl>    <dbl>
-## 1             315      317
-## 2             329      333
-## 3             340      342
-## 4             345      344
-## 5             360      354
-## 6             358      354
-## 7             360      355
-## 8             360      357
-## 9             360      357
-## 10            360      358
-## # ... with 336,766 more rows
+## # A tibble: 336,776 × 19
+##     year month   day dep_time sched_dep_time dep_delay arr_time
+##    <int> <int> <int>    <dbl>          <dbl>     <dbl>    <int>
+## 1   2013     1     1      317            315         2      830
+## 2   2013     1     1      333            329         4      850
+## 3   2013     1     1      342            340         2      923
+## 4   2013     1     1      344            345        -1     1004
+## 5   2013     1     1      354            360        -6      812
+## 6   2013     1     1      354            358        -4      740
+## 7   2013     1     1      355            360        -5      913
+## 8   2013     1     1      357            360        -3      709
+## 9   2013     1     1      357            360        -3      838
+## 10  2013     1     1      358            360        -2      753
+## # ... with 336,766 more rows, and 12 more variables: sched_arr_time <int>,
+## #   arr_delay <dbl>, carrier <chr>, flight <int>, tailnum <chr>,
+## #   origin <chr>, dest <chr>, air_time <dbl>, distance <dbl>, hour <dbl>,
+## #   minute <dbl>, time_hour <dttm>
 ```
 2.Compare air_time with arr_time - dep_time. What do you expect to see? What do you see? What do you need to do to fix it?
+
 
 ```r
 flights2 <- select(flights, air_time, arr_time, dep_time)
