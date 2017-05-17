@@ -328,13 +328,7 @@ flights %>%
 7.Find all destinations that are flown by at least two carriers. Use that information to rank the carriers.
 
 8.For each plane, count the number of flights before the first delay of greater than 1 hour
-This uses a grouped summary operation. First I group by plane (tailnum), then I create a variable that defines the row number within each plane. I then filter the data to only include flights with delays longer than an hour, and use summarize() in conjunction with first() to find for each plane the row_num of the first flight with an 1+ hour delay. I subtract 1 from that value to count the number of flights before the first delay, rather than including the first flight with the hour or more delay.
-```{r}
-flights %>%
-  group_by(tailnum) %>%
-  mutate(row_num = row_number()) %>%
-  filter(arr_delay > 60) %>%
-  summarize(first_hour_delay = first(row_num) - 1)
+I have no idea
 ```
 #6 Workflow: scripts
 #6.2 RStudio diagnostics
