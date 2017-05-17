@@ -331,5 +331,6 @@ flights %>%
 I have no idea
 ```
 #6 Workflow: scripts
+
 #6.2 RStudio diagnostics
 
