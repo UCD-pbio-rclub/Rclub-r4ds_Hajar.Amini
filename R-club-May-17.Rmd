@@ -162,6 +162,7 @@ daily %>%
 
 ```
 #5.6.7 Exercises
+
 1.Brainstorm at least 5 different ways to assess the typical delay characteristics of a group of flights. Consider the following scenarios:
 
 A flight is 15 minutes early 50% of the time, and 15 minutes late 50% of the time.
@@ -175,6 +176,7 @@ A flight is 30 minutes early 50% of the time, and 30 minutes late 50% of the tim
 Which is more important: arrival delay or departure delay?
 Delay type importance depends on individual preference.I think it depends on you for me I prefer to arrive on time so arrive delay is more important for me.
 ```{r}
+
 #A flight is 15 minutes early 50% of the time, and 15 minutes late 50% of the time
 flights %>%
   group_by(flight) %>%
@@ -333,4 +335,6 @@ I have no idea
 #6 Workflow: scripts
 
 #6.2 RStudio diagnostics
+cmd+shift+m gives the pipe (%>%)
+cmd+shift+n gives new tab
 
