@@ -317,4 +317,87 @@ ggplot(diamonds, aes(cut, price)) +
 
 5.Compare and contrast geom_violin() with a facetted geom_histogram(), or a coloured geom_freqpoly(). What are the pros and cons of each method?
 
+```{r}
+# geom_violin
+ggplot(diamonds, aes(cut, price)) +
+  geom_violin()
+
+# faceted geom_histogram
+ggplot(diamonds, aes(price)) +
+  geom_histogram() +
+  facet_grid(. ~ cut)
+
+# colored geom_freqpoly
+ggplot(diamonds, aes(price, color = cut)) +
+  geom_freqpoly()
+
+```
+
+6.If you have a small dataset, it’s sometimes useful to use geom_jitter() to see the relationship between a continuous and categorical variable. The ggbeeswarm package provides a number of methods similar to geom_jitter(). List them and briefly describe what each one does.
+geom_quasirandom that produces plots that resemble something between jitter and violin
+
+```{r}
+install.packages("ggbeeswarm")
+library("ggbeeswarm")
+ggplot(data = mpg) +
+  geom_quasirandom(mapping = aes(x = reorder(class, hwy, FUN = median), y = hwy))
+
+ggplot(data = mpg) +
+  geom_beeswarm(mapping = aes(x = reorder(class, hwy, FUN = median), y = hwy))
+
+#geom_beeswarm creates a shape similar to a violin plot, but by offsetting the points.
+
+```
+
+#7.5.2 Two categorical variables
+
+```{r}
+ggplot(data = diamonds) +
+  geom_count(mapping = aes(x = cut, y = color))
+
+#library("dplyr")
+diamonds %>% 
+  count(color, cut)
+
+diamonds %>% 
+  count(color, cut) %>%  
+  ggplot(mapping = aes(x = color, y = cut)) +
+    geom_tile(mapping = aes(fill = n))
+
+```
+
+#7.5.2.1 Exercises
+
+1.How could you rescale the count dataset above to more clearly show the distribution of cut within colour, or colour within cut?
+prop is the proportion of each cut within a color. 
+
+```{r}
+library("viridis")
+diamonds %>% 
+  count(color, cut) %>%
+  group_by(cut) %>%
+  mutate(prop = n / sum(n)) %>%
+  ggplot(mapping = aes(x = color, y = cut)) +
+  geom_tile(mapping = aes(fill = prop)) + 
+  scale_fill_viridis (limits=c(0, 1))
+```
+
+2.Use geom_tile() together with dplyr to explore how average flight delays vary by destination and month of year. What makes the plot difficult to read? How could you improve it?
+
+```{r}
+flights %>%
+  group_by(month, dest) %>%
+  summarise(dep_delay = mean(dep_delay, na.rm = TRUE)) %>%
+  ggplot(aes(x = factor(month), y = dest, fill = dep_delay)) +
+  geom_tile() +
+ scale_fill_viridis() +
+  labs(x = "Month", y = "Destination", fill = "Departure Delay")
+
+```
+
+3.Why is it slightly better to use aes(x = color, y = cut) rather than aes(x = cut, y = color) in the example above?
+
+```{r}
+
+```
 
