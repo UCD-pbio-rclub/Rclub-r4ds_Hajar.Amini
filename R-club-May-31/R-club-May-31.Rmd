@@ -57,8 +57,172 @@ diamonds %>%
 
 #10 Tibbles
 
+#10.1.1 Prerequisites
+
 ```{r}
+library(tidyverse)
+```
+
+#10.2 Creating tibbles
+
+```{r}
+as_tibble(iris)
+
+tibble(
+  x = 1:5, 
+  y = 1, 
+  z = x ^ 2 + y
+)
+
+tb <- tibble(
+  `:)` = "smile", 
+  ` ` = "space",
+  `2000` = "number"
+)
+tb
 
 ```
 
+#10.3 Tibbles vs. data.frame
+#10.3.1 Printing
+
+```{r}
+tibble(
+  a = lubridate::now() + runif(1e3) * 86400,
+  b = lubridate::today() + runif(1e3) * 30,
+  c = 1:1e3,
+  d = runif(1e3),
+  e = sample(letters, 1e3, replace = TRUE)
+)
+
+nycflights13::flights %>% 
+  print(n = 10, width = Inf)
+
+nycflights13::flights %>% 
+  View()
+```
+
+#10.3.2 Subsetting
+
+```{r}
+df <- tibble(
+  x = runif(5),
+  y = rnorm(5)
+)
+df$x
+df[["x"]]
+df[[1]]
+
+df %>% .$x
+df %>% .[["x"]]
+
+```
+
+#0.4 Interacting with older code
+
+```{r}
+class(tb)
+str(tb)
+class(as.data.frame(tb))
+
+```
+
+#10.5 Exercises
+
+1.How can you tell if an object is a tibble? (Hint: try printing mtcars, which is a regular data frame).
+
+```{r}
+print(mtcars)
+str(mtcars)
+class(mtcars)
+
+```
+
+2.Compare and contrast the following operations on a data.frame and equivalent tibble. What is different? Why might the default data frame behaviours cause you frustration?
+
+```{r}
+#on a dataframe
+df <- data.frame(abc = 1, xyz = "a")
+df$x
+df[, "xyz"]
+df[, c("abc", "xyz")]
+
+```
+
+```{r}
+# on a tibble
+df <- tibble(abc = 1, xyz = "a")
+df$x
+#> Warning: Unknown column 'x'
+#> NULL
+df[, "xyz"]
+df[, c("abc", "xyz")]
+
+#Tibbles never do partial matching; data frames do.
+
+```
+
+3.If you have the name of a variable stored in an object, e.g. var <- "mpg", how can you extract the reference variable from a tibble?
+
+```{r}
+var <- "hwy"
+mpg[[var]]
+
+# i am not sure
+```
+
+4.Practice referring to non-syntactic names in the following data frame by:
+
+```{r}
+annoying <- tibble(
+  `1` = 1:10,
+  `2` = `1` * 2 + rnorm(length(`1`))
+)
+
+#1.Extracting the variable called 1.
+annoying$`1`
+
+#2.Plotting a scatterplot of 1 vs 2.
+
+ggplot(annoying, aes(`1`, `2`)) +
+  geom_point()
+
+#3.Creating a new column called 3 which is 2 divided by 1.
+
+annoying <- mutate(annoying, `3` = `2` / `1`)
+annoying
+
+#4.Renaming the columns to one, two and three.
+
+rename(annoying,
+       one = `1`,
+       two = `2`,
+       three = `3`)
+
+```
+
+#5.What does tibble::enframe() do? When might you use it?
+
+```{r}
+?enframe
+enframe(c(a = 5, b = 7))
+enframe(1:6)
+
+#enframe() is a function that converts named atomic vectors or lists to two-column data frames. we use it if we have data stored in a named vector and we want to add it to a data frame and preserve both the name attribute and the actual value.
+
+```
+
+#6.What option controls how many additional column names are printed at the footer of a tibble?
+
+```{r}
+?print.tbl_df
+
+nycflights13::flights %>% 
+  print(n = 4, width = Inf) 
+# n for rows, width = Inf means print all columns  
+
+nycflights13::flights %>% 
+  print(n = 4, width = NULL, n_extra = 3)  
+
+```
 
