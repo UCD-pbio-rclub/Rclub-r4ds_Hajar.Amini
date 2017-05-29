@@ -226,7 +226,7 @@ as we can see many of the data points overlap. by using jitter we can add the po
 
 ```{r}
 ggplot(data = mpg, mapping = aes(x = cty, y = hwy)) + 
-  geom_jitter()
+  geom_jitter(size=2)
 
 ```
 
@@ -258,7 +258,8 @@ ggplot(data = mpg, mapping = aes(x = class, y = hwy, color = drv)) +
 
 ```{r}
 ggplot(data = mpg, mapping = aes(x = class, y = hwy)) + 
-  geom_boxplot()
+  geom_boxplot(position = "identity")
+
 
 ```
 
@@ -353,6 +354,7 @@ Error due to == and typo in diamond
 
 filter(mpg, cyl == 8)
 filter(diamonds, carat > 3)
+library(cowplot)
+grid.arrange(...,....,ncol=2,nrow=1,width=c(6,2)
 
-
-
+instal

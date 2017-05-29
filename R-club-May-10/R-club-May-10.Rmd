@@ -271,6 +271,7 @@ dep_time should equal sched_dep_time + dep_delay (after accounting for the fact 
 4.Find the 10 most delayed flights using a ranking function. How do you want to handle ties? Carefully read the documentation for min_rank().
 
 ```{r}
+summary(flights)
 delayed <- mutate(flights, most_delayed = min_rank(desc(arr_delay)))
 arrange(delayed, most_delayed)
 ```
