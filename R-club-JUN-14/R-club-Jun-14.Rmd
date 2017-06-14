@@ -61,10 +61,25 @@ table2_clean <- tibble(country = tb2_country,
        year = tb2_year,
        rate = tb2_cases / tb2_population)
 table2_clean
+
+tibble(country = table4a[["country"]],
+       `1999` = table4a[["1999"]] / table4b[["1999"]],
+       `2000` = table4a[["2000"]] / table4b[["2000"]])
+or
+tibble(country = rep(table4a[["country"]], 2),
+       year = rep(c(1999, 2000), each = nrow(table4a)),
+       `rate` = c(table4a[["1999"]] / table4b[["1999"]],
+                  table4a[["2000"]] / table4b[["2000"]]))
 ```
 3.Recreate the plot showing change in cases over time using table2 instead of table1. What do you need to do first?
+First, I needed to filter the tibble to only include those rows that represented the “cases” variable.
 
 ```{r}
+table2 %>% 
+  filter(type == "cases") %>%
+  ggplot(aes(year, count)) + 
+  geom_line(aes(group = country)) + 
+  geom_point(aes(colour = country))
 ```
 
 #12.3 Spreading and gathering
@@ -101,13 +116,28 @@ stocks %>%
   spread(year, return) %>% 
   gather("year", "return", `2015`:`2016`)
 
+#The functions spread and gather are not perfectly symmetrical because column type information is not transferred between them. In the original table the column year was numeric, but after the spread-gather function it is character, because with gather, variable names are always converted to a character vector.
+
 #Both spread() and gather() have a convert argument. What does it do?
- 
+
+#The convert argument tries to convert character vectors to the appropriate type. 
+
+stocks %>% 
+  spread(year, return) %>% 
+  gather("year", "return", `2015`:`2016`, convert = TRUE)
+
 ```
+
 2. Why does this code fail?
+
 ```{r}
 #table4a %>% 
   gather(1999, 2000, key = "year", value = "cases")
+
+#The code fails because the column names 1999 and 2000 are not standard and thus needs to be quoted. 
+
+table4a %>% 
+  gather(`1999`, `2000`, key = "year", value = "cases")
 
 ```
 3.Why does spreading this tibble fail? How could you add a new column to fix the problem?
@@ -122,6 +152,21 @@ people <- tribble(
   "Jessica Cordero", "age",       37,
   "Jessica Cordero", "height",   156
 )
+#spread(people, key, value)
+
+#Spreading the data frame fails because there are two rows with “age” for “Phillip Woods”. We would need to add another column with an indicator for the number observation it is,
+
+people <- tribble(
+  ~name,             ~key,    ~value, ~obs,
+  #-----------------|--------|------|------
+  "Phillip Woods",   "age",       45, 1,
+  "Phillip Woods",   "height",   186, 1,
+  "Phillip Woods",   "age",       50, 2,
+  "Jessica Cordero", "age",       37, 1,
+  "Jessica Cordero", "height",   156, 1
+)
+
+spread(people, key, value)
 
 ```
 4.Tidy the simple tibble below. Do you need to spread or gather it? What are the variables?
@@ -132,6 +177,17 @@ preg <- tribble(
   "yes",     NA,    10,
   "no",      20,    12
 )
+
+#You need to gather it. The variables are:
+#pregnant: logical (“yes”, “no”)
+#female: logical
+#count: integer
+
+gather(pregnant, sex, count, male, female) %>%
+  mutate(pregnant = pregnant == "yes",
+         female = sex == "female") %>%
+  select(-sex)
+#got error
 ```
 
 #12.4 Separating and uniting
@@ -150,5 +206,57 @@ table3 %>%
 
 table3 %>% 
   separate(year, into = c("century", "year"), sep = 2)
+```
 
+#12.4.2 Unite
 
+```{r}
+table5 %>% 
+  unite(new, century, year)
+
+table5 %>% 
+  unite(new, century, year, sep = "")
+
+```
+
+#12.4.3 Exercises
+
+1.What do the extra and fill arguments do in separate()? Experiment with the various options for the following two toy datasets.
+
+```{r}
+tibble(x = c("a,b,c", "d,e,f,g", "h,i,j")) %>% 
+  separate(x, c("one", "two", "three"))
+
+tibble(x = c("a,b,c", "d,e", "f,g,i")) %>% 
+  separate(x, c("one", "two", "three"))
+
+?separate
+#The extra argument tells separate what to do if there are too many pieces, and the fill argument if there aren’t enough.
+
+tibble(x = c("a,b,c", "d,e,f,g", "h,i,j")) %>% 
+  separate(x, c("one", "two", "three"))
+
+#By default we got a warning.
+
+tibble(x = c("a,b,c", "d,e,f,g", "h,i,j")) %>% 
+  separate(x, c("one", "two", "three"), extra = "drop")
+
+#without warning
+
+tibble(x = c("a,b,c", "d,e,f,g", "h,i,j")) %>% 
+  separate(x, c("one", "two", "three"), extra = "merge")
+
+tibble(x = c("a,b,c", "d,e", "f,g,i")) %>% 
+  separate(x, c("one", "two", "three"), fill = "right")
+
+tibble(x = c("a,b,c", "d,e", "f,g,i")) %>% 
+  separate(x, c("one", "two", "three"), fill = "left")
+
+```
+
+2.Both unite() and separate() have a remove argument. What does it do? Why would you set it to FALSE?
+You would set it to FALSE if you want to create a new variable, but keep the old one.
+
+3.Compare and contrast separate() and extract(), Why are there three variations of separation (by position, by separator, and with groups), but only one unite?
+The function extract uses a regular expression to find groups and split into columns. 
+In unite it is many columns to one, and once the columns are specified, there is only one way to do it, the only choice is the sep. In separate, there are multiple ways to split the character string.
