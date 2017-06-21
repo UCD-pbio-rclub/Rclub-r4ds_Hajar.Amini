@@ -171,5 +171,7 @@ We would merge the flights with airports twice: to get the location of the origi
 The variable origin in weather is matched with faa in airport
 
 3.weather only contains information for the origin (NYC) airports. If it contained weather records for all airports in the USA, what additional relation would it define with flights?
+year, month, day, hour, origin in weather would be matched to year, month, day, hour, dest in flight 
 
 4.We know that some days of the year are “special”, and fewer people than usual fly on them. How might you represent that data as a data frame? What would be the primary keys of that table? How would it connect to the existing tables?
+I would add a table of special dates. It would match to the year, month, day columns of `flights.
