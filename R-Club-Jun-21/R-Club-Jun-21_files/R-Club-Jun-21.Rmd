@@ -1,0 +1,177 @@
+---
+title: "R-Club-Jun-21"
+author: "Hajar"
+date: "6/19/2017"
+output: 
+  html_document: 
+    keep_md: yes
+---
+#12.5 Missing values
+
+```{r}
+library(tidyverse)
+stocks <- tibble(
+  year   = c(2015, 2015, 2015, 2015, 2016, 2016, 2016),
+  qtr    = c(   1,    2,    3,    4,    2,    3,    4),
+  return = c(1.88, 0.59, 0.35,   NA, 0.92, 0.17, 2.66)
+)
+
+stocks %>% 
+  spread(year, return)
+
+stocks %>% 
+  spread(year, return) %>% 
+  gather(year, return, `2015`:`2016`, na.rm = TRUE)
+
+stocks %>% 
+  complete(year, qtr)
+
+treatment <- tribble(
+  ~ person,           ~ treatment, ~response,
+  "Derrick Whitmore", 1,           7,
+  NA,                 2,           10,
+  NA,                 3,           9,
+  "Katherine Burke",  1,           4
+)
+
+treatment %>% 
+  fill(person)
+```
+
+#12.5.1 Exercises
+
+1.Compare and contrast the fill arguments to spread() and complete().
+
+```{r}
+? spread
+? complete
+#In spread, the fill argument explicitly sets the value to replace NA. 
+#In complete, the fill argument also sets a value to replace NA but it is named list. Also, both cases replace both implicit and explicit missing values
+```
+
+2.What does the direction argument to fill() do?
+With fill, it determines whether NA values should be replaced by the previous non-missing value ("down") or the next non-missing value ("up").
+
+#12.6 Case Study
+
+```{r}
+who
+
+who1 <- who %>% 
+  gather(new_sp_m014:newrel_f65, key = "key", value = "cases", na.rm = TRUE)
+who1
+
+who1 %>% 
+  count(key)
+
+who2 <- who1 %>% 
+  mutate(key = stringr::str_replace(key, "newrel", "new_rel"))
+who2
+
+who3 <- who2 %>% 
+  separate(key, c("new", "type", "sexage"), sep = "_")
+who3
+
+who3 %>% 
+  count(new)
+
+who4 <- who3 %>% 
+  select(-new, -iso2, -iso3)
+
+who5 <- who4 %>% 
+  separate(sexage, c("sex", "age"), sep = 1)
+who5
+
+#briefly
+who %>%
+  gather(code, value, new_sp_m014:newrel_f65, na.rm = TRUE) %>% 
+  mutate(code = stringr::str_replace(code, "newrel", "new_rel")) %>%
+  separate(code, c("new", "var", "sexage")) %>% 
+  select(-new, -iso2, -iso3) %>% 
+  separate(sexage, c("sex", "age"), sep = 1)
+```
+
+#12.6.1 Exercises
+
+1.In this case study I set na.rm = TRUE just to make it easier to check that we had the correct values. Is this reasonable? Think about how missing values are represented in this dataset. Are there implicit missing values? What’s the difference between an NA and zero?
+
+```{r}
+who1 %>%
+  filter(cases == 0) %>%
+  nrow()
+
+gather(who, new_sp_m014:newrel_f65, key = "key", value = "cases") %>%
+  group_by(country, year)  %>%
+  mutate(missing = is.na(cases)) %>%
+  select(country, year, missing) %>%
+  distinct() %>%
+  group_by(country, year) %>%
+  filter(n() > 1)
+```
+
+2.What happens if you neglect the mutate() step? (mutate(key = stringr::str_replace(key, "newrel", "new_rel")))
+
+separate emits the warning “too few values”, and if we check the rows for keys beginning with "newrel_", we can see sexage is messing, and type = m014.
+
+```{r}
+who3a <- who1 %>%
+  separate(key, c("new", "type", "sexage"), sep = "_")
+
+#Too few values at 2580 locations: 73467, 73468, 73469, 73470, 73471, 73472, 73473, 73474, 73475, 73476, 73477, 73478, 73479, 73480, 73481, 73482, 73483, 73484, 73485, 73486, ...
+
+filter(who3a, new == "newrel") %>% head()
+```
+
+
+3.claimed that iso2 and iso3 were redundant with country. Confirm this claim.
+
+```{r}
+select(who3, country, iso2, iso3) %>%
+  distinct() %>%
+  group_by(country) %>%
+  filter(n() > 1)
+```
+
+
+4.For each country, year, and sex compute the total number of cases of TB. Make an informative visualisation of the data.
+
+```{r}
+who5 %>%
+  group_by(country, year, sex) %>%
+  filter(year > 1995) %>%
+  summarise(cases = sum(cases)) %>%
+  unite(country_sex, country, sex, remove = FALSE) %>%
+  ggplot(aes(x = year, y = cases, group = country_sex, colour = sex)) +
+  geom_line()
+```
+
+#13 Relational data
+
+```{r}
+
+library(tidyverse)
+library(nycflights13)
+
+airlines
+airports
+planes
+
+```
+
+#13.2.1 Exercises
+
+1.Imagine you wanted to draw (approximately) the route each plane flies from its origin to its destination. What variables would you need? What tables would you need to combine?
+
+with flights table: origin and dest
+with airports table: longitude and latitude variables
+We would merge the flights with airports twice: to get the location of the origin airport and dest airport.
+
+2.I forgot to draw the relationship between weather and airports. What is the relationship and how should it appear in the diagram?
+
+The variable origin in weather is matched with faa in airport
+
+3.weather only contains information for the origin (NYC) airports. If it contained weather records for all airports in the USA, what additional relation would it define with flights?
+year, month, day, hour, origin in weather would be matched to year, month, day, hour, dest in flight 
+
+4.We know that some days of the year are “special”, and fewer people than usual fly on them. How might you represent that data as a data frame? What would be the primary keys of that table? How would it connect to the existing tables?
+I would add a table of special dates. It would match to the year, month, day columns of `flights.
