@@ -1,0 +1,234 @@
+---
+title: "R-Club-Jul-12"
+author: "Hajar"
+date: "7/11/2017"
+output: 
+  html_document: 
+    keep_md: yes
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r}
+library("stringr")
+library("tidyverse")
+```
+#14.2 String basics
+```{r}
+string1 <- "This is a string"
+string2 <- 'If I want to include a "quote" inside a string, I use single quotes'
+double_quote <- "\""
+single_quote <- '\''
+x <- c("\"", "\\")
+x
+writeLines(x)
+```
+#14.2.1 String length
+```{r}
+str_length(c("a", "R for data science", NA))
+```
+#14.2.2 Combining strings
+
+```{r}
+str_c("x", "y")
+str_c("x", "y", "z")
+str_c("x", "y", sep = ", ")
+x <- c("abc", NA)
+str_c("|-", str_replace_na(x), "-|")
+str_c("prefix-", c("a", "b", "c"), "-suffix")
+name <- "Hadley"
+time_of_day <- "morning"
+birthday <- FALSE
+
+str_c(
+  "Good ", time_of_day, " ", name,
+  if (birthday) " and HAPPY BIRTHDAY",
+  "."
+)
+str_c(c("x", "y", "z"), collapse = ", ")
+```
+
+#14.2.3 Subsetting strings
+
+```{r}
+x <- c("Apple", "Banana", "Pear")
+str_sub(x, 1, 3)
+str_sub(x, -3, -1)
+str_sub("a", 1, 5)
+str_sub(x, 1, 1) <- str_to_lower(str_sub(x, 1, 1))
+```
+
+#14.2.4 Locales
+```{r}
+str_to_upper(c("i", "ı"))
+str_to_upper(c("i", "ı"), locale = "tr")
+x <- c("apple", "eggplant", "banana")
+str_sort(x, locale = "en")  # English
+```
+
+#14.2.5 Exercises
+
+1.In code that doesn’t use stringr, you’ll often see paste() and paste0(). What’s the difference between the two functions? What stringr function are they equivalent to? How do the functions differ in their handling of NA?
+
+The function paste seperates strings by spaces by default, while paste0 does not seperate strings with spaces by default
+
+```{r}
+paste("foo", "bar")
+
+paste0("foo", "bar")
+
+#Since str_c does not seperate strings with spaces by default like paste0.
+
+str_c("foo", "bar")
+
+#str_c() referse to NA value
+
+str_c("foo", NA)
+
+paste("foo", NA)
+
+paste0("foo", NA)
+```
+
+2.In your own words, describe the difference between the sep and collapse arguments to str_c().
+
+The sep argument is the string inserted between argugments to str_c, while collapse is the string used to separate any elements of the character vector into a character vector of length one.
+
+3.Use str_length() and str_sub() to extract the middle character from a string. What will you do if the string has an even number of characters?
+
+```{r}
+x <- c("a", "abc", "abcd", "abcde", "abcdef")
+L <- str_length(x)
+m <- ceiling(L / 2)
+str_sub(x, m, m)
+```
+
+4.What does str_wrap() do? When might you want to use it?
+
+The function str_wrap wraps text so that it fits within a certain width. This is useful for wrapping long strings of text
+
+5. What does str_trim() do? What’s the opposite of str_trim()?
+
+The function str_trim trims the whitespace from a string.
+
+```{r}
+str_trim(" abc ")
+
+str_trim(" abc ", side = "left")
+
+str_trim(" abc ", side = "right")
+
+#The opposite of str_trim is str_pad which adds characters to each side.
+
+str_pad("abc", 5, side = "both")
+
+str_pad("abc", 4, side = "right")
+
+str_pad("abc", 4, side = "left")
+
+```
+
+6.Write a function that turns (e.g.) a vector c(“a”, “b”, “c”) into the string a, b, and c. Think carefully about what it should do if given a vector of length 0, 1, or 2.
+
+I don't know
+
+#14.3.5 Grouping and backreferences
+
+```{r}
+str_view(fruit, "(..)\\1", match = TRUE)
+
+```
+
+#14.3.5.1 Exercises
+
+1.Describe, in words, what these expressions will match:
+
+(.)\1\1
+The same character apearing three times in a row. E.g. “aaa”
+"(.)(.)\\2\\1"
+A pair of characters followed by the same pair of characters in reversed order. E.g. “abba”.
+(..)\1
+Any two characters repeated. E.g. “a1a1”.
+(.).\\1.\\1
+A character followed by any character, the original character, any other character, the original character again. E.g. “abaca”, “b8b.b”.
+(.)(.)(.).*\\3\\2\\1
+ Three characters followed by zero or more characters of any kind followed by the same three characters but in reverse order. E.g. “abcsgasgddsadgsdgcba” or “abccba” or “abc1cba”.
+
+2.Construct regular expressions to match words that:
+
+Start and end with the same character.
+
+```{r}
+str_view(words, "^(.).*\\1$", match = TRUE)
+```
+
+Contain a repeated pair of letters (e.g. “church” contains “ch” repeated twice.)
+
+```{r}
+# any two characters repeated
+str_view(words, "(..).*\\1", match = TRUE)
+
+# more stringent, letters only, but also allowing for differences in capitalization
+str_view(str_to_lower(words), "([a-z][a-z]).*\\1", match = TRUE)
+
+```
+
+Contain one letter repeated in at least three places (e.g. “eleven” contains three “e”s.)
+
+```{r}
+str_view(words, "(.).*\\1.*\\1", match = TRUE)
+
+```
+##exp tuturial
+#one
+1.
+2. "123"
+3. ...\.
+4. [cmf]an
+5. [^b]og
+6. [A-C][n-p][a-c]
+7. [w][a][z]{3,5}up
+8. a+b*c+
+9. \d+ files? found?
+10. \d.\s+abc
+11. ^Mission: successful$
+12. ^(file.*).pdf$
+13. (\w+ (\d+))
+14. (\d+)x(\d+)
+15. I love (cats|dogs)
+16. .*
+
+#decimal numbers
+
+1. .*[^p]$
+2. 1?[\s-]?\(?(\d{3})\)?[\s-]?\d{3}[\s-]?\d{4} (saw the solution)
+3. ([^+@]+)
+4. <(\w+)
+5. (\w+).(jpg|png|gif)$
+6. ^\s*(.*)$
+7. need more time
+8. ^(\w+)://([\w-.]+)(:(\d+))?
+
+#Bigginer
+
+1. HELP
+2. BOBE
+3. OOOO
+4. **//
+5. i don't konw
+
+#Intermediate
+1. ATOWEL
+2. -
+3. -
+4. DONTPANIC
+5. -
+
+#Experienced
+
+1. 
+
+1. 
