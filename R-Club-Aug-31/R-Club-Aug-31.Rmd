@@ -1,0 +1,160 @@
+---
+title: "R-Club-Aug-31"
+author: "Hajar"
+date: "8/27/2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+#20.4 Using atomic vectors
+```{r}
+x <- sample(20, 100, replace = TRUE)
+y <- x > 10
+sum(y)  # how many are greater than 10?
+#> [1] 44
+mean(y) # what proportion are greater than 10?
+#> [1] 0.44
+```
+
+```{r}
+if (length(x)) {
+  # do something
+}
+```
+
+```{r}
+typeof(c(TRUE, 1L))
+#> [1] "integer"
+typeof(c(1L, 1.5))
+#> [1] "double"
+typeof(c(1.5, "a"))
+#> [1] "character"
+```
+
+#20.4.2 Test functions
+
+#20.4.3 Scalars and recycling rules
+
+```{r}
+sample(10) + 100
+#>  [1] 109 108 104 102 103 110 106 107 105 101
+runif(10) > 0.5
+#>  [1]  TRUE  TRUE FALSE  TRUE  TRUE  TRUE FALSE  TRUE  TRUE  TRUE
+1:10 + 1:2
+```
+
+```{r}
+#tibble(x = 1:4, y = 1:2)
+tibble(x = 1:4, y = rep(1:2, 2))
+tibble(x = 1:4, y = rep(1:2, each = 2))
+
+```
+
+#20.4.4 Naming vectors
+
+```{r}
+c(x = 1, y = 2, z = 4)
+set_names(1:3, c("a", "b", "c"))
+
+```
+
+#20.4.6 Exercises
+
+1.What does mean(is.na(x)) tell you about a vector x? What about sum(!is.finite(x))?
+
+```{r}
+x <- c(1:10, NA, NaN, Inf, -Inf)
+mean(is.na(x))
+#The portion of missing value
+mean(!is.infinite(x))
+
+#The proportion of NA, NaN, or infinite.
+
+mean(!is.finite(x))
+```
+2.Carefully read the documentation of is.vector(). What does it actually test for? Why does is.atomic() not agree with the definition of atomic vectors above?
+
+```{r}
+?is.vector()
+#he function is.vector only checks whether the object has no attributes other than names, so lis is a vector
+is.vector(list(a = 1, b = 2))
+
+#but object with attributes rather than names is not vector
+
+x <- 1:10
+attr(x, "something") <- TRUE
+is.vector(x)
+
+#The function is.atomic checks whether an object is one of the atomic types (“logical”, “integer”, “numeric”, “complex”, “character”, and “raw”) or NULL.
+
+is.atomic(1:10)
+
+is.atomic(list(a = 1))
+
+```
+
+3.Compare and contrast setNames() with purrr::set_names().
+
+```{r}
+setNames
+purrr::set_names
+
+```
+
+
+4.Create functions that take a vector as input and returns:
+
+The last value. Should you use [ or [[?
+
+The elements at even numbered positions.
+
+Every element except the last value.
+
+Only even numbers (and no missing values).
+
+```{r}
+
+last_value <- function(x) {
+  # check for case with no length
+  if (length(x)) {
+    # Use [[ as suggested because it returns one element
+    x[[length(x)]]  
+  } else {
+    x
+  }
+}
+last_value(numeric())
+
+last_value(1)
+
+last_value(1:10)
+```
+
+
+5.Why is x[-which(x > 0)] not the same as x[x <= 0]?
+
+```{r}
+#They will treat missing values differently.
+
+x <- c(-5:5, Inf, -Inf, NaN, NA)
+x[-which(x > 0)]
+#> [1]   -5   -4   -3   -2   -1    0 -Inf  NaN   NA
+-which(x > 0)
+#> [1]  -7  -8  -9 -10 -11 -12
+x[x <= 0]
+#> [1]   -5   -4   -3   -2   -1    0 -Inf   NA   NA
+x <= 0
+
+#-which(x > 0) which calculates the indexes for any value that is TRUE and ignores NA. Thus is keeps NA and NaN. x <= 0 works differently. If x <= 0 returns TRUE or FALSE it works the same way. if the comparison generates a NA, then it will always keep that entry, but set it to NA. This is why the last two values of x[x <= 0] are NA rather than c(NaN, NA).
+```
+
+
+6.What happens when you subset with a positive integer that’s bigger than the length of the vector? What happens when you subset with a name that doesn’t exist?
+
+```{r}
+
+```
+
