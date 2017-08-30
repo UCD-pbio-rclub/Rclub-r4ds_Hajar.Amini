@@ -82,7 +82,7 @@ mean(!is.finite(x))
 
 ```{r}
 ?is.vector()
-#he function is.vector only checks whether the object has no attributes other than names, so lis is a vector
+#he function is.vector only checks whether the object has no attributes other than names, so list is a vector
 is.vector(list(a = 1, b = 2))
 
 #but object with attributes rather than names is not vector
