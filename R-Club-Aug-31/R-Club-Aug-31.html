@@ -153,10 +153,10 @@ typeof(c(1.5, &quot;a&quot;))</code></pre>
 <div id="scalars-and-recycling-rules" class="section level1">
 <h1>20.4.3 Scalars and recycling rules</h1>
 <pre class="r"><code>sample(10) + 100</code></pre>
-<pre><code>##  [1] 109 106 101 102 103 105 108 107 104 110</code></pre>
+<pre><code>##  [1] 107 102 105 106 109 108 103 110 101 104</code></pre>
 <pre class="r"><code>#&gt;  [1] 109 108 104 102 103 110 106 107 105 101
 runif(10) &gt; 0.5</code></pre>
-<pre><code>##  [1]  TRUE FALSE  TRUE  TRUE FALSE  TRUE FALSE FALSE FALSE FALSE</code></pre>
+<pre><code>##  [1] FALSE  TRUE FALSE FALSE  TRUE FALSE FALSE FALSE FALSE  TRUE</code></pre>
 <pre class="r"><code>#&gt;  [1]  TRUE  TRUE FALSE  TRUE  TRUE  TRUE FALSE  TRUE  TRUE  TRUE
 1:10 + 1:2</code></pre>
 <pre><code>##  [1]  2  4  4  6  6  8  8 10 10 12</code></pre>
@@ -202,7 +202,7 @@ mean(!is.finite(x))</code></pre>
 <pre><code>## [1] 0.2857143</code></pre>
 <p>2.Carefully read the documentation of is.vector(). What does it actually test for? Why does is.atomic() not agree with the definition of atomic vectors above?</p>
 <pre class="r"><code>?is.vector()
-#he function is.vector only checks whether the object has no attributes other than names, so lis is a vector
+#he function is.vector only checks whether the object has no attributes other than names, so list is a vector
 is.vector(list(a = 1, b = 2))</code></pre>
 <pre><code>## [1] TRUE</code></pre>
 <pre class="r"><code>#but object with attributes rather than names is not vector
@@ -224,7 +224,7 @@ is.atomic(1:10)</code></pre>
 ##     names(object) &lt;- nm
 ##     object
 ## }
-## &lt;bytecode: 0x7fd5f990b4a0&gt;
+## &lt;bytecode: 0x7fb223e53d90&gt;
 ## &lt;environment: namespace:stats&gt;</code></pre>
 <pre class="r"><code>purrr::set_names</code></pre>
 <pre><code>## function (x, nm = x) 
