@@ -1,0 +1,170 @@
+---
+title: "R-Club-Sep-27"
+output: 
+  html_document: 
+    keep_md: yes
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+#23.3 Visualising models
+
+```{r}
+library(modelr)
+grid <- sim1 %>% 
+  data_grid(x)
+ 
+```
+
+```{r}
+sim1_mod <- lm(y ~ x, data = sim1)
+
+grid <- grid %>% 
+  add_predictions(sim1_mod) 
+grid
+
+```
+
+
+```{r}
+library(ggplot2)
+ggplot(sim1, aes(x)) +
+  geom_point(aes(y = y)) +
+  geom_line(aes(y = pred), data = grid, colour = "red", size = 1)
+```
+
+#23.3.2 Residuals
+
+```{r}
+sim1 <- sim1 %>% 
+  add_residuals(sim1_mod)
+sim1
+```
+
+```{r}
+ggplot(sim1, aes(resid)) + 
+  geom_freqpoly(binwidth = 0.5)
+```
+```{r}
+ggplot(sim1, aes(x, resid)) + 
+  geom_ref_line(h = 0) +
+  geom_point()
+```
+#23.3.3 Exercises
+
+1.Instead of using lm() to fit a straight line, you can use loess() to fit a smooth curve. Repeat the process of model fitting, grid generation, predictions, and visualisation on sim1 using loess() instead of lm(). How does the result compare to geom_smooth()?
+
+```{r}
+#First use add_predictions and add_residuals to add the predictions and residuals from a loess regression to the sim1 data.
+
+sim1_loess <- loess(y ~ x, data = sim1)
+grid_loess <- sim1 %>%
+  add_predictions(sim1_loess)
+
+sim1 <- sim1 %>%
+  add_residuals(sim1_loess, var = "resid_loess") %>%
+  add_predictions(sim1_loess, var = "pred_loess")
+  
+#This plots the loess predictions. The loess produces a nonlinear, but smooth line through the data.
+
+plot_sim1_loess <- 
+  ggplot(sim1, aes(x = x, y = y)) +
+  geom_point() +
+  geom_line(aes(x = x, y = pred), data = grid_loess, colour = "red")
+plot_sim1_loess
+
+#As we see the massege, The predictions of loess are the same as the default method for geom_smooth because geom_smooth() uses loess() by default.
+
+plot_sim1_loess +
+  geom_smooth(colour = "blue", se = FALSE, alpha = 0.20)
+
+#plot the residuals (red), and compare them to the residuals from lm (black). In general, the loess model has smaller residuals within the sample 
+
+#ggplot(sim1, aes(x = x)) +
+ # geom_ref_line(h = 0) +
+ # geom_point(aes(y = resid)) +
+  #geom_point(aes(y = resid_loess), colour = "red") why Error in FUN(X[[i]], ...) : object 'resid_loess' not found?
+```
+
+2.add_predictions() is paired with gather_predictions() and spread_predictions(). How do these three functions differ?
+
+The functions gather_predictions and spread_predictions allow for adding predictions from multiple models at once.
+
+3.What does geom_ref_line() do? What package does it come from? Why is displaying a reference 
+line in plots showing residuals useful and important?
+
+The geom geom_ref_line() adds as reference line to a plot. Even though it alters a ggplot2 plot, it is in the modelr package. Putting a reference line at zero for residuals is important because good models should have residuals centered at zero, with approximately the same variance (or distribution) over the support of x, and no correlation. A zero reference line makes it easier to judge these characteristics visually.
+
+4.Why might you want to look at a frequency polygon of absolute residuals? What are the pros and cons compared to looking at the raw residuals?
+
+The frequency polygon makes it easier to judge whether the variance or absolute size of the residuals varies with respect to x. 
+
+#23.4 Formulas and model families
+
+```{r}
+library(tibble)
+df <- tribble(
+  ~y, ~x1, ~x2,
+  4, 2, 5,
+  5, 1, 6
+)
+model_matrix(df, y ~ x1)
+model_matrix(df, y ~ x2)
+```
+
+```{r}
+model_matrix(df, y ~ x1 - 1)
+```
+
+#23.4.1 Categorical variables
+
+```{r}
+df <- tribble(
+  ~ sex, ~ response,
+  "male", 1,
+  "female", 2,
+  "male", 1
+)
+model_matrix(df, response ~ sex)
+```
+
+```{r}
+ggplot(sim2) + 
+  geom_point(aes(x, y))
+```
+
+```{r}
+mod2 <- lm(y ~ x, data = sim2)
+
+grid <- sim2 %>% 
+  data_grid(x) %>% 
+  add_predictions(mod2)
+grid
+```
+
+```{r}
+ggplot(sim2, aes(x)) + 
+  geom_point(aes(y = y)) +
+  geom_point(data = grid, aes(y = pred), colour = "red", size = 4)
+```
+
+```{r}
+#tibble(x = "e") %>% 
+#  add_predictions(mod2)
+#got error
+```
+
+#23.4.2 Interactions (continuous and categorical)
+```{r}
+ggplot(sim3, aes(x1, y)) + 
+  geom_point(aes(colour = x2))
+```
+
+```{r}
+mod1 <- lm(y ~ x1 + x2, data = sim3)
+mod2 <- lm(y ~ x1 * x2, data = sim3)
+```
+
+
