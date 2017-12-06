@@ -1,0 +1,306 @@
+---
+title: "ISLR_club_6_Dec"
+output: 
+  html_document: 
+    keep_md: yes
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+#3.6.1 Libraries
+```{r}
+library (MASS)
+library (ISLR)
+
+```
+#3.6.2 Simple Linear Regression
+```{r}
+fix(Boston)
+names(Boston)
+#lm.fit =lm(medv∼lstat)
+lm.fit <- lm(medv~lstat, data = Boston)
+attach (Boston )
+lm.fit <- lm(medv~lstat)
+lm.fit
+summary(lm.fit)
+names(lm.fit)
+coef(lm.fit)
+confint (lm.fit)
+predict (lm.fit ,data.frame(lstat=c(5 ,10 ,15)),interval ="confidence")
+predict (lm.fit ,data.frame(lstat=c(5 ,10 ,15)),interval ="prediction")
+plot(lstat,medv)
+x <- plot(lstat,medv)
+abline(lm.fit)
+abline (lm.fit ,lwd =3)
+abline (lm.fit ,lwd =3, col ="red")
+plot(lstat ,medv ,col ="red ")
+plot(lstat ,medv ,pch =20)
+plot(lstat ,medv ,pch ="+")
+plot (1:20 ,1:20, pch =1:20)
+par(mfrow =c(2,2))
+plot(lm.fit)
+plot(predict (lm.fit), residuals (lm.fit))
+plot(predict (lm.fit), rstudent (lm.fit))
+plot(hatvalues (lm.fit ))
+which.max (hatvalues (lm.fit))
+```
+#3.7 Exercises
+
+3.Suppose we have a data set with five predictors, X1 =GPA, X2 = IQ,
+X3 = Gender (1 for Female and 0 for Male), X4 = Interaction between
+GPA and IQ, and X5 = Interaction between GPA and Gender. The
+response is starting salary after graduation (in thousands of dollars).
+Suppose we use least squares to fit the model, and get ˆβ0 = 50, ˆβ1 =
+20, ˆβ2 = 0.07, ˆβ3 = 35, ˆβ4 = 0.01, ˆβ5 = −10.
+(a) Which answer is correct, and why?
+i. For a fixed value of IQ and GPA, males earn more on average
+than females.
+ 
+
+
+
+ii. For a fixed value of IQ and GPA, females earn more on
+average than males.
+iii. For a fixed value of IQ and GPA, males earn more on average
+than females provided that the GPA is high enough.
+iv. For a fixed value of IQ and GPA, females earn more on
+average than males provided that the GPA is high enough.
+
+answer:
+Y = 50 + 20(gpa) + 0.07(iq) + 35(gender) + 0.01(gpa * iq) - 10 (gpa * gender)
+suppose : gpa l1 iq l2
+(a) Y = 50 + 20 l1 + 0.07 l2 + 35 gender + 0.01(l1 * l2) - 10 (l1 * gender)
+male: (gender = 0)   50 + 20 l1 + 0.07 l2 + 0.01(l1 * l2)
+female: (gender = 1) 50 + 20 l1 + 0.07 l2 + 35 + 0.01(l1 * l2) - 10 (l1)
+iii. Once the GPA is high enough, males earn more on average.
+
+(b) Predict the salary of a female with IQ of 110 and a GPA of 4.0.
+
+answer:
+(b) Y(Gender = 1, IQ = 110, GPA = 4.0)
+= 50 + 20 * 4 + 0.07 * 110 + 35 + 0.01 (4 * 110) - 10 * 4
+= 137.1
+
+(c) True or false: Since the coefficient for the GPA/IQ interaction
+term is very small, there is very little evidence of an interaction
+effect. Justify your answer.
+
+answer:
+(c) False. We must examine the p-value of the regression coefficient to
+understand whether the interaction term is statistically significant or not.
+
+8. This question involves the use of simple linear regression on the Auto
+data set.
+(a) Use the lm() function to perform a simple linear regression with
+mpg as the response and horsepower as the predictor. Use the
+summary() function to print the results. Comment on the output.
+For example:
+i. Is there a relationship between the predictor and the response?
+ii. How strong is the relationship between the predictor and
+the response?
+iii. Is the relationship between the predictor and the response
+positive or negative?
+iv. What is the predicted mpg associated with a horsepower of
+98? What are the associated 95% confidence and prediction
+intervals?
+
+```{r}
+data(Auto)
+summary(Auto)
+attach(Auto)
+lm.fit = lm(mpg ~ horsepower)
+summary(lm.fit)
+
+#i.Yes, there is a relationship between horsepower and mpg as deterined by testing the null hypothesis of coefficients equal to zero. we can see the F is latder than 1 and p-value of the F-statistic is close to zero we can reject the null hypothesis.
+
+#ii.To calculate the residual error relative to the response we use the mean of the response and the RSE.The RSE of the lm.fit was  4.906 which indicates a percentage error of  4.906/mean(mpg, na.rm=T) * 100.0%. The R^2 of the lm.fit was about 0.60 60% of the variance in mpg is explained by horsepower.
+
+#iii.The relationship between mpg and horsepower is negative. The more horsepower the less mpg fuel efficiency 
+
+#iv.
+predict(lm.fit, data.frame(horsepower=c(98)), interval="confidence")
+#       fit      lwr      upr
+#1 24.46708 23.97308 24.96108
+predict(lm.fit, data.frame(horsepower=c(98)), interval="prediction")
+#       fit     lwr      upr
+#1 24.46708 14.8094 34.12476
+```
+
+(b) Plot the response and the predictor. Use the abline() function
+to display the least squares regression line.
+
+```{r}
+plot(horsepower, mpg)
+abline(lm.fit)
+```
+
+(c) Use the plot() function to produce diagnostic plots of the least
+squares regression fit. Comment on any problems you see with
+the fit.
+
+```{r}
+par(mfrow=c(2,2))
+plot(lm.fit)
+#Based on the residuals plots, there is some evidence of non-linearity.
+```
+
+13. In this exercise you will create some simulated data and will fit simple
+linear regression models to it. Make sure to use set.seed(1) prior to
+starting part (a) to ensure consistent results.
+(a) Using the rnorm() function, create a vector, x, containing 100
+observations drawn from a N(0, 1) distribution. This represents
+a feature, X.
+
+```{r}
+set.seed(1)
+x = rnorm(100)
+```
+
+(b) Using the rnorm() function, create a vector, eps, containing 100
+observations drawn from a N(0, 0.25) distribution i.e. a normal
+distribution with mean zero and variance 0.25.
+
+```{r}
+eps = rnorm(100, 0, sqrt(0.25))
+```
+
+(c) Using x and eps, generate a vector y according to the model
+Y = −1 + 0.5X + e (3.39)
+What is the length of the vector y? What are the values of β0
+and β1 in this linear model?
+
+```{r}
+y = -1 + 0.5*x + eps
+#y is of length 100. β0 is -1, β1 is 0.5.
+```
+
+(d) Create a scatterplot displaying the relationship between x and
+y. Comment on what you observe.
+
+```{r}
+plot(x,y)
+#I observe a linear relationship between x and y with a positive slope.
+```
+
+(e) Fit a least squares linear model to predict y using x. Comment
+on the model obtained. How do ˆ β0 and ˆ β1 compare to β0 and
+β1?
+
+```{r}
+lm.fit = lm(y~x)
+summary(lm.fit)
+#The linear regression fits a model close to the true value of the coefficients as was constructed. The model has a large F-statistic with a near-zero p-value so the null hypothesis can be rejected.
+```
+
+(f) Display the least squares line on the scatterplot obtained in (d).
+Draw the population regression line on the plot, in a different
+color.
+
+```{r}
+plot(x, y)
+x<- plot(x,y)
+abline(lm.fit, lwd=3, col=2)
+abline(-1, 0.5, lwd=3, col=3)
+legend(-1, legend = c("model fit", "pop. regression"), col=2:3, lwd=3)
+```
+
+(h) Repeat (a)–(f) after modifying the data generation process in
+such a way that there is less noise in the data. The model (3.39)
+should remain the same. You can do this by decreasing the variance
+of the normal distribution used to generate the error term
+e in (b). Describe your results.
+
+```{r}
+set.seed(1)
+eps1 = rnorm(100, 0, 0.125)
+x1 = rnorm(100)
+y1 = -1 + 0.5*x1 + eps1
+plot(x1, y1)
+x <- plot(x1, y1)
+x
+lm.fit1 = lm(y1~x1)
+summary(lm.fit1)
+abline(lm.fit1, lwd=3, col=2)
+abline(-1, 0.5, lwd=3, col=3)
+legend(-1, legend = c("model fit", "pop. regression"), col=2:3, lwd=3)
+#the error observed in R^2 and RSE decreases considerably.
+```
+
+(i) Repeat (a)–(f) after modifying the data generation process in
+such a way that there is more noise in the data. The model
+(3.39) should remain the same. You can do this by increasing
+the variance of the normal distribution used to generate the
+error term e in (b). Describe your results.
+
+```{r}
+set.seed(1)
+eps2 = rnorm(100, 0, 0.5)
+x2 = rnorm(100)
+y2 = -1 + 0.5*x2 + eps2
+plot(x2, y2)
+lm.fit2 = lm(y2~x2)
+summary(lm.fit2)
+abline(lm.fit2, lwd=3, col=2)
+abline(-1, 0.5, lwd=3, col=3)
+legend(-1, legend = c("model fit", "pop. regression"), col=2:3, lwd=3)
+#the error observed in R^2 and RSE increases considerably.
+
+```
+
+(j) What are the confidence intervals for β0 and β1 based on the
+original data set, the noisier data set, and the less noisy data
+set? Comment on your results.
+
+```{r}
+confint(lm.fit)
+confint(lm.fit1)
+confint(lm.fit2)
+#All intervals seem to be centered on approximately 0.5.
+```
+
+15. This problem involves the Boston data set, which we saw in the lab
+for this chapter. We will now try to predict per capita crime rate
+using the other variables in this data set. In other words, per capita
+crime rate is the response, and the other variables are the predictors.
+(a) For each predictor, fit a simple linear regression model to predict
+the response. Describe your results. In which of the models is
+there a statistically significant association between the predictor
+and the response? Create some plots to back up your assertions.
+
+```{r}
+library(MASS)
+summary(Boston)
+Boston$chas <- factor(Boston$chas, labels = c("N","Y"))
+summary(Boston)
+attach(Boston)
+lm.zn = lm(crim~zn)
+summary(lm.zn) # yes
+lm.indus = lm(crim~indus)
+summary(lm.indus) # yes
+lm.chas = lm(crim~chas) 
+summary(lm.chas) # no
+lm.nox = lm(crim~nox)
+summary(lm.nox) # yes
+lm.rm = lm(crim~rm)
+summary(lm.rm) # yes
+lm.age = lm(crim~age)
+summary(lm.age) # yes
+lm.dis = lm(crim~dis)
+summary(lm.dis) # yes
+lm.rad = lm(crim~rad)
+summary(lm.rad) # yes
+lm.tax = lm(crim~tax)
+summary(lm.tax) # yes
+lm.ptratio = lm(crim~ptratio)
+summary(lm.ptratio) # yes
+lm.black = lm(crim~black)
+summary(lm.black) # yes
+lm.lstat = lm(crim~lstat)
+summary(lm.lstat) # yes
+lm.medv = lm(crim~medv)
+summary(lm.medv) # yes
+#All, except chas. Plot each linear regression using "plot(lm)" to see residuals.
+```
+
